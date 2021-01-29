@@ -21,7 +21,10 @@ keytool -certreq -keystore clientkeystore -storepass password -file clientkey.cs
 #Signs the request 'clientkey.csr' and signs with CA. Saves to 'clientkey.crt'. (A file called ca.srl is created which i think contains all issued serial numbers)
 openssl x509 -req -in clientkey.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out clientkey.crt
 
-#6. 
+#6.
+#First imports ca.crt and then clientkey.crt into clientkeystore 
+keytool -import -trustcacerts -alias root -file ca.crt -keystore clientkeystore -storepass password
+keytool -import -trustcacerts -file clientkey.crt -keystore clientkeystore -storepass password
 
 
 
