@@ -6,12 +6,12 @@ openssl genrsa -out ca.key
 openssl req -new -x509 -key ca.key -out ca.crt
 
 #2.
-# import the specified certificate and give alias CA to a new keystore 'clienttruststore'
-keytool -import -file ./ca.crt -alias CA -keystore clienttruststore 
+# import the specified certificate and give alias CA to a new keystore 'clienttruststore'. set password to 'password'
+keytool -import -file ca.crt -alias CA -keystore clienttruststore -storepass password
 
 #3.
 # generate a keypair with RSA of keysize 2048 bits to a new keystore  'clientkeystore'
-keytool -genkeypair -keyalg RSA -keysize 2048 -keystore clientkeystore 
+keytool -genkeypair -keyalg RSA -keysize 2048 -keystore clientkeystore -storepass password
 
 #4.
 # make a Certificate Signing Request (csr) for the keystore 'clientkeystore' with password 'password'. Save request as 'clientkey.csr
@@ -28,6 +28,33 @@ keytool -import -trustcacerts -file clientkey.crt -keystore clientkeystore -stor
 
 #7.
 #Lists all certificates in clientkeystore. I think it looks alright.
-keytool -list -v -keystore clientkeystore -storepass password
+#keytool -list -v -keystore clientkeystore -storepass password
 
+#8.
+#B: 
+#C: 
 
+#9.
+# generate a keypair with RSA of keysize 2048 bits to a new keystore  'serverkeystore'
+keytool -genkeypair -keyalg RSA -keysize 2048 -keystore serverkeystore -storepass password
+
+# make a Certificate Signing Request (csr) for the keystore 'serverkeystore' with password 'password'. Save request as 'serverkey.csr'
+keytool -certreq -keystore serverkeystore -storepass password -file serverkey.csr 
+
+#Signs the request 'serverkey.csr' and signs with CA. Saves to 'serverkey.crt'.
+openssl x509 -req -in serverkey.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out serverkey.crt
+
+#First imports ca.crt and then serverkey.crt into 'serverkey' 
+keytool -import -trustcacerts -alias root -file ca.crt -keystore serverkeystore -storepass password
+keytool -import -trustcacerts -file clientkey.crt -keystore serverkeystore -storepass password
+
+#Lists all certificates in clientkeystore. I think it looks alright.
+#keytool -list -v -keystore clientkeystore -storepass password
+
+#10.
+# import the specified certificate and give alias CA to a new keystore 'clienttruststore'. set password to 'password'
+keytool -import -file ./ca.crt -alias CA -keystore servertruststore -storepass password
+#D: 
+
+#11.
+#E: 
