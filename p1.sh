@@ -1,6 +1,9 @@
+#PART 1
+
 #1.
 #Generate a rsa key and save it as ca.key
 openssl genrsa -out ca.key 	
+#A:
 
 # Generate a self signed x509-certificate. save as ca.crt
 openssl req -new -x509 -key ca.key -out ca.crt
@@ -24,11 +27,11 @@ openssl x509 -req -in clientkey.csr -CA ca.crt -CAkey ca.key -CAcreateserial -ou
 #6.
 #First imports ca.crt and then clientkey.crt into clientkeystore 
 keytool -import -trustcacerts -alias root -file ca.crt -keystore clientkeystore -storepass password
-keytool -import -trustcacerts -file clientkey.crt -keystore clientkeystore -storepass password
+keytool -import -trustcacerts -alias myKey -file clientkey.crt -keystore clientkeystore -storepass password
 
 #7.
 #Lists all certificates in clientkeystore. I think it looks alright.
-#keytool -list -v -keystore clientkeystore -storepass password
+keytool -list -v -keystore clientkeystore -storepass password
 
 #8.
 #B: 
@@ -46,7 +49,7 @@ openssl x509 -req -in serverkey.csr -CA ca.crt -CAkey ca.key -CAcreateserial -ou
 
 #First imports ca.crt and then serverkey.crt into 'serverkey' 
 keytool -import -trustcacerts -alias root -file ca.crt -keystore serverkeystore -storepass password
-keytool -import -trustcacerts -file clientkey.crt -keystore serverkeystore -storepass password
+keytool -import -trustcacerts -file serverkey.crt -keystore serverkeystore -storepass password
 
 #Lists all certificates in clientkeystore. I think it looks alright.
 #keytool -list -v -keystore clientkeystore -storepass password
@@ -58,3 +61,8 @@ keytool -import -file ./ca.crt -alias CA -keystore servertruststore -storepass p
 
 #11.
 #E: 
+
+
+#PART 2
+
+#1
