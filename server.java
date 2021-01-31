@@ -21,9 +21,14 @@ public class server implements Runnable {
             SSLSession session = socket.getSession();
             X509Certificate cert = (X509Certificate)session.getPeerCertificateChain()[0];
             String subject = cert.getSubjectDN().getName();
+            String issuer = cert.getIssuerDN().getName();
+            String serialNumber = cert.getSerialNumber().toString();
     	    numConnectedClients++;
             System.out.println("client connected");
             System.out.println("client name (cert subject DN field): " + subject);
+            System.out.println("Issuer on certificate received from client:\n" + issuer + "\n");
+            System.out.println("Serial number of certificate:\n" + serialNumber + "\n");
+
             System.out.println(numConnectedClients + " concurrent connection(s)\n");
 
             PrintWriter out = null;

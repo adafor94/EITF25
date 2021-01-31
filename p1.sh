@@ -10,7 +10,7 @@ openssl req -new -x509 -key ca.key -out ca.crt
 
 #2.
 # import the specified certificate and give alias CA to a new keystore 'clienttruststore'. set password to 'password'
-keytool -import -file ca.crt -alias CA -keystore clienttruststore -storepass password
+keytool -import -file ca.crt -alias CA -keystore clienttruststore -storepass password 
 
 #3.
 # generate a keypair with RSA of keysize 2048 bits to a new keystore  'clientkeystore'
@@ -62,15 +62,19 @@ keytool -import -file ./ca.crt -alias CA -keystore servertruststore -storepass p
 #11.
 #E: 
 
-
 #PART 2
 
 #1
 javac server.java client.java
 
 #2
-terminal -e java server 9876
-terminal -e java client localhost 9876
+terminal -e java server 9875
+terminal -e java client localhost 9875
 
 #3 
 #F: The message reversed
+
+#7
+#G: Sets the SSL-socket to require client authentication. 
+
+
