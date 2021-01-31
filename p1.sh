@@ -66,3 +66,11 @@ keytool -import -file ./ca.crt -alias CA -keystore servertruststore -storepass p
 #PART 2
 
 #1
+javac server.java client.java
+
+#2
+terminal -e java server 9876
+terminal -e java client localhost 9876
+
+#3 
+#F: The message reversed
