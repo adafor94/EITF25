@@ -1,9 +1,9 @@
-#PART 1
+#PART1
 
 #1.
 #Generate a rsa key and save it as ca.key
 openssl genrsa -out ca.key 	
-#A:
+#A: 
 
 # Generate a self signed x509-certificate. save as ca.crt
 openssl req -new -x509 -key ca.key -out ca.crt
@@ -49,7 +49,7 @@ openssl x509 -req -in serverkey.csr -CA ca.crt -CAkey ca.key -CAcreateserial -ou
 
 #First imports ca.crt and then serverkey.crt into 'serverkey' 
 keytool -import -trustcacerts -alias root -file ca.crt -keystore serverkeystore -storepass password
-keytool -import -trustcacerts -file serverkey.crt -keystore serverkeystore -storepass password
+keytool -import -trustcacerts -alias myKey -file serverkey.crt -keystore serverkeystore -storepass password
 
 #Lists all certificates in clientkeystore. I think it looks alright.
 #keytool -list -v -keystore clientkeystore -storepass password
@@ -68,13 +68,11 @@ keytool -import -file ./ca.crt -alias CA -keystore servertruststore -storepass p
 javac server.java client.java
 
 #2
-terminal -e java server 9875
-terminal -e java client localhost 9875
+terminal -e java server 9876
+terminal -e java client localhost 9876
 
 #3 
 #F: The message reversed
 
 #7
 #G: Sets the SSL-socket to require client authentication. 
-
-
