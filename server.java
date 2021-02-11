@@ -1,13 +1,18 @@
 import java.io.*;
 import java.net.*;
 import java.security.KeyStore;
+import java.util.HashMap;
+
 import javax.net.*;
 import javax.net.ssl.*;
 import javax.security.cert.X509Certificate;
+import util.*;
 
 public class server implements Runnable {
     private ServerSocket serverSocket = null;
     private static int numConnectedClients = 0;
+    private HashMap<String, Record> recordDB = new HashMap<String, Record>();
+    private Log log = new Log();
 
     public server(ServerSocket ss) throws IOException {
         serverSocket = ss;
