@@ -14,7 +14,6 @@ import java.security.cert.*;
  * the firewall by following SSLSocketClientWithTunneling.java.
  */
 public class client {
-
     public static void main(String[] args) throws Exception {
         String host = null;
         int port = -1;
@@ -32,18 +31,22 @@ public class client {
             System.out.println("USAGE: java client host port");
             System.exit(-1);
         }
+        BufferedReader read = new BufferedReader(new InputStreamReader(System.in));
 
         try { /* set up a key manager for client authentication */
             SSLSocketFactory factory = null;
             try {
-                char[] password = "password".toCharArray();
+                System.out.println("\n Please enter the path of your certificate:\n");
+                String certificatePath = read.readLine();
+                System.out.println("\n Please enter your password: \n");
+                char[] password = read.readLine().toCharArray();
                 KeyStore ks = KeyStore.getInstance("JKS");
                 KeyStore ts = KeyStore.getInstance("JKS");
                 KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
                 TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
                 SSLContext ctx = SSLContext.getInstance("TLS");
-                ks.load(new FileInputStream("clientkeystore"), password);  // keystore password (storepass)
-				ts.load(new FileInputStream("clienttruststore"), password); // truststore password (storepass);
+                ks.load(new FileInputStream(certificatePath), password);  // keystore password (storepass)
+				ts.load(new FileInputStream("./certificates/clients/clienttruststore"), password); // truststore password (storepass);
 				kmf.init(ks, password); // user password (keypass)
 				tmf.init(ts); // keystore can be used as truststore here
 				ctx.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
@@ -74,7 +77,7 @@ public class client {
             System.out.println("socket after handshake:\n" + socket + "\n");
             System.out.println("secure connection established\n\n");
 
-            BufferedReader read = new BufferedReader(new InputStreamReader(System.in));
+            // BufferedReader read = new BufferedReader(new InputStreamReader(System.in));
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String msg;

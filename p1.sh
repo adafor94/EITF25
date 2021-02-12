@@ -27,7 +27,7 @@ openssl x509 -req -in clientkey.csr -CA ca.crt -CAkey ca.key -CAcreateserial -ou
 #6.
 #First imports ca.crt and then clientkey.crt into clientkeystore 
 keytool -import -trustcacerts -alias root -file ca.crt -keystore clientkeystore -storepass password
-keytool -import -trustcacerts -alias myKey -file clientkey.crt -keystore clientkeystore -storepass password
+keytool -import -trustcacerts -alias mykey -file clientkey.crt -keystore clientkeystore -storepass password
 
 #7.
 #Lists all certificates in clientkeystore. I think it looks alright.
