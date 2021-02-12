@@ -42,11 +42,21 @@ public class server implements Runnable {
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             String clientMsg = null;
+
+            System.out.println("Options:\n 1. Create new record\n 2. Read record\n 3. Write to record\n 4. Delete record");
+
             while ((clientMsg = in.readLine()) != null) {
-			    String rev = new StringBuilder(clientMsg).reverse().toString();
+                switch(clientMsg) {
+                    case "1":
+                    case "2":
+                    case "3":
+                    case "4":
+                    default:
+                        System.out.println("Something went wrong \n\n");
+                        System.out.println("Options:\n 1. Create new record\n 2. Read record\n 3. Write to record\n 4. Delete record");
+                }
                 System.out.println("received '" + clientMsg + "' from client");
-                System.out.print("sending '" + rev + "' to client...");
-				out.println(rev);
+             //   System.out.print("sending '" + rev + "' to client...");
 				out.flush();
                 System.out.println("done\n");
 			}
@@ -61,6 +71,10 @@ public class server implements Runnable {
             e.printStackTrace();
             return;
         }
+    }
+
+    private Boolean accessControl(String subject, String option, String record) {
+        return True;
     }
 
     private void newListener() { (new Thread(this)).start(); } // calls run()
