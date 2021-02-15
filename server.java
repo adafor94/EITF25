@@ -19,10 +19,10 @@ public class server implements Runnable {
         serverSocket = ss;
         newListener();
 
-        Record Alice = new Record("Alice", "doc0", "div0", "nurse0", "Broken foot");
-        Record Bob = new Record("Bob", "doc1", "div1", "nurse0", "Broken heart");
-        recordDB.put("Alice", Alice);
-        recordDB.put("Bob", Bob);
+        Record Alice = new Record("alice", "doc0", "div0", "nurse0", "Broken foot");
+        Record Bob = new Record("bob", "doc1", "div1", "nurse0", "Broken heart");
+        recordDB.put("alice", Alice);
+        recordDB.put("bob", Bob);
     }
 
     public void run() {
@@ -36,7 +36,7 @@ public class server implements Runnable {
             String serialNumber = cert.getSerialNumber().toString();
 
             currentClient = new CurrentClient(subject);
-            currentClient.print();
+           // currentClient.print();
 
     	    numConnectedClients++;
             System.out.println("client connected");
@@ -59,44 +59,32 @@ public class server implements Runnable {
                 System.out.println(clientMsg);
                 out.println("Please enter the name of the record:");
                 record = in.readLine();
+                int option; 
+                try {
+                    option = Integer.parseInt(clientMsg);
+                } catch (Exception e) {
+                    option = -1;
+                }
 
-                switch(clientMsg) {
-                    case "1":
-                        if (!accessControl("create", record)) {
-                            out.println("Denied!");
-                        } else {
-                            createRecord(record);
-                            out.println("TODO");
-                        }
-                        break;
-
-                    case "2":
-                        if (!accessControl("read", record)) {
-                            out.println("Denied!");
-                        } else {
-                            out.println(recordDB.get(record).printable());
-                        } 
-                        break;
-
-                    case "3":
-                        if (!accessControl("write", record)) {
-                            out.println("Denied!");
-                        } else {
-                            writeRecord(record);
-                            out.println("TODO");
-                        }
-                        break;
-
-                    case "4":
-                        if (!accessControl("delete", record)) {
-                            out.println("Denied!");
-                        } else {
-                            recordDB.remove(record);
-                            out.println("Done");
-                        }   
-                        break;
-                    default:
+                if (option < 1 || option > 4) {
+                    out.println("\nSomething went wrong \n\n" + "Options:\n 1. Create new record\n 2. Read record\n 3. Write to record\n 4. Delete record");
+                } else if (!accessControl(clientMsg, record)) {
+                    out.println("Denied!");
+                } else {
+                    if (clientMsg.equals("1")) {
+                        createRecord(record);
+                        out.println("TODO");
+                    } else if (clientMsg.equals("2")) {
+                        out.println(recordDB.get(record).printable());
+                    } else if (clientMsg.equals("3")) {
+                        writeRecord(record);
+                        out.println("TODO");
+                    } else if (clientMsg.equals("4")) {
+                        recordDB.remove(record);
+                        out.println("Done");
+                    } else {
                         out.println("\nSomething went wrong \n\n" + "Options:\n 1. Create new record\n 2. Read record\n 3. Write to record\n 4. Delete record");
+                    }
                 }
 				out.flush();
                 System.out.println("done\n");
@@ -126,18 +114,19 @@ public class server implements Runnable {
       //  currentClient.print();
         String st = currentClient.getAttribute("ST");
         String cn = currentClient.getAttribute("CN");
+        String ou = currentClient.getAttribute("OU");
         Record rec = recordDB.get(record);
         switch(option) {
-            case "create":
+            case "1":
                 return st.equals("doctor");
-            case "read":
+            case "2":
                 if (rec == null) {
                     return false;
                 }
                 if (st.equals("doctor")) {
-                    return rec.division.equals(currentClient.getAttribute("OU")) || rec.doctor.equals(cn);
+                    return rec.division.equals(ou) || rec.doctor.equals(cn);
                 } else if (st.equals("nurse")) {
-                    return rec.division.equals(currentClient.getAttribute("OU")) || rec.nurse.equals(cn);
+                    return rec.division.equals(ou) || rec.nurse.equals(cn);
                 } else if (st.equals("patient")) {
                     return cn.equals(record);
                 } else if (cn.equals("governmentAgency")) {
@@ -146,14 +135,14 @@ public class server implements Runnable {
                     return false;
                 }
 
-            case "write":
+            case "3":
                 if (rec == null) {
                     return false;
                 }
                 if (st.equals("doctor")) {
-                    return rec.division.equals(currentClient.getAttribute("OU")) || rec.doctor.equals(cn);
+                    return rec.division.equals(ou) || rec.doctor.equals(cn);
                 } else if (st.equals("nurse")) {
-                    return rec.division.equals(currentClient.getAttribute("OU")) || rec.nurse.equals(cn);
+                    return rec.division.equals(ou) || rec.nurse.equals(cn);
                 } else if (st.equals("patient")) {
                     return cn.equals(record);
                 } else if (st.equals("governmentAgency")) {
@@ -161,7 +150,7 @@ public class server implements Runnable {
                 } else {
                     return false;
                 }
-            case "delete":
+            case "4":
                 if (rec == null) {
                     return false;
                 }

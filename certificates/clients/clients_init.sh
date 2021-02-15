@@ -65,3 +65,33 @@ keytool -import -trustcacerts -alias myKey -file clientkey.crt -keystore nurse0k
 
 rm clientkey.csr
 rm clientkey.crt
+
+#Patient Alice
+
+keytool -genkeypair -keyalg RSA -keysize 2048 -keystore patientAliceKeystore -storepass password -dname "cn=alice, st=patient, o=hospital, c=se, l=lund"
+
+keytool -certreq -keystore patientAliceKeystore -storepass password -file clientkey.csr 
+
+openssl x509 -req -in clientkey.csr -CA ../ca/ca.crt -CAkey ../ca/ca.key -CAcreateserial -out clientkey.crt
+
+keytool -import -trustcacerts -alias root -file ../ca/ca.crt -keystore patientAliceKeystore -storepass password
+
+keytool -import -trustcacerts -alias myKey -file clientkey.crt -keystore patientAliceKeystore -storepass password
+
+rm clientkey.csr
+rm clientkey.crt
+
+#Patient Bob
+
+keytool -genkeypair -keyalg RSA -keysize 2048 -keystore patientBobKeystore -storepass password -dname "cn=bob, st=patient, o=hospital, c=se, l=lund"
+
+keytool -certreq -keystore patientBobKeystore -storepass password -file clientkey.csr 
+
+openssl x509 -req -in clientkey.csr -CA ../ca/ca.crt -CAkey ../ca/ca.key -CAcreateserial -out clientkey.crt
+
+keytool -import -trustcacerts -alias root -file ../ca/ca.crt -keystore patientBobKeystore -storepass password
+
+keytool -import -trustcacerts -alias myKey -file clientkey.crt -keystore patientBobKeystore -storepass password
+
+rm clientkey.csr
+rm clientkey.crt
