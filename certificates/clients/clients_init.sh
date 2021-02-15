@@ -16,7 +16,7 @@ openssl x509 -req -in clientkey.csr -CA ../ca/ca.crt -CAkey ../ca/ca.key -CAcrea
 keytool -import -trustcacerts -alias root -file ../ca/ca.crt -keystore governmentAgencykeystore -storepass password
 
 #import clientkey.crt into clientkeystore. 
-keytool -import -trustcacerts -alias govagent -file clientkey.crt -keystore governmentAgencykeystore -storepass password
+keytool -import -trustcacerts -alias myKey -file clientkey.crt -keystore governmentAgencykeystore -storepass password
 
 rm clientkey.csr
 rm clientkey.crt
@@ -51,7 +51,7 @@ keytool -import -trustcacerts -alias myKey -file clientkey.crt -keystore doc1key
 rm clientkey.csr
 rm clientkey.crt
 
-#NURSE0, div 0
+#NURSE0, div0
 
 keytool -genkeypair -keyalg RSA -keysize 2048 -keystore nurse0keystore -storepass password -dname "cn=nurse0, ou=div0, st=nurse, o=hospital, c=se, l=lund"
 

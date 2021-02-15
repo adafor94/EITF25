@@ -7,7 +7,7 @@ public class CurrentClient {
     private HashMap<String, String> attributes = new HashMap<>();
 
     public CurrentClient(String s) {
-        String[] attributes = s.split(" ");
+        String[] attributes = s.split(",");
         for (String attribute : attributes) {
             String[] keyAndValue = attribute.split("=");
             this.attributes.put(keyAndValue[0].trim(), keyAndValue[1].trim());

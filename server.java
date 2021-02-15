@@ -18,6 +18,11 @@ public class server implements Runnable {
     public server(ServerSocket ss) throws IOException {
         serverSocket = ss;
         newListener();
+
+        Record Alice = new Record("Alice", "doc0", "div0", "nurse0", "Broken foot");
+        Record Bob = new Record("Bob", "doc1", "div1", "nurse0", "Broken heart");
+        recordDB.put("Alice", Alice);
+        recordDB.put("Bob", Bob);
     }
 
     public void run() {
@@ -31,7 +36,7 @@ public class server implements Runnable {
             String serialNumber = cert.getSerialNumber().toString();
 
             currentClient = new CurrentClient(subject);
-            //currentClient.print();
+            currentClient.print();
 
     	    numConnectedClients++;
             System.out.println("client connected");
@@ -47,20 +52,52 @@ public class server implements Runnable {
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             String clientMsg = null;
-
+            String record = null;
             out.println("Options:\n 1. Create new record\n 2. Read record\n 3. Write to record\n 4. Delete record");
 
             while ((clientMsg = in.readLine()) != null) {
+                System.out.println(clientMsg);
+                out.println("Please enter the name of the record:");
+                record = in.readLine();
+
                 switch(clientMsg) {
                     case "1":
+                        if (!accessControl("create", record)) {
+                            out.println("Denied!");
+                        } else {
+                            createRecord(record);
+                            out.println("TODO");
+                        }
+                        break;
+
                     case "2":
+                        if (!accessControl("read", record)) {
+                            out.println("Denied!");
+                        } else {
+                            out.println(recordDB.get(record).printable());
+                        } 
+                        break;
+
                     case "3":
+                        if (!accessControl("write", record)) {
+                            out.println("Denied!");
+                        } else {
+                            writeRecord(record);
+                            out.println("TODO");
+                        }
+                        break;
+
                     case "4":
+                        if (!accessControl("delete", record)) {
+                            out.println("Denied!");
+                        } else {
+                            recordDB.remove(record);
+                            out.println("Done");
+                        }   
+                        break;
                     default:
                         out.println("\nSomething went wrong \n\n" + "Options:\n 1. Create new record\n 2. Read record\n 3. Write to record\n 4. Delete record");
                 }
-             //   System.out.println("received '" + clientMsg + "' from client");
-             //   System.out.print("sending '" + rev + "' to client...");
 				out.flush();
                 System.out.println("done\n");
 			}
@@ -77,8 +114,61 @@ public class server implements Runnable {
         }
     }
 
-    private Boolean accessControl(String subject, String option, String record) {
-        return true;
+    private void writeRecord(String record) {
+        System.out.println("TODO");
+    }
+
+    private void createRecord(String record) {
+        System.out.println("TODO");
+    }
+
+    private Boolean accessControl(String option, String record) {
+      //  currentClient.print();
+        String st = currentClient.getAttribute("ST");
+        String cn = currentClient.getAttribute("CN");
+        Record rec = recordDB.get(record);
+        switch(option) {
+            case "create":
+                return st.equals("doctor");
+            case "read":
+                if (rec == null) {
+                    return false;
+                }
+                if (st.equals("doctor")) {
+                    return rec.division.equals(currentClient.getAttribute("OU")) || rec.doctor.equals(cn);
+                } else if (st.equals("nurse")) {
+                    return rec.division.equals(currentClient.getAttribute("OU")) || rec.nurse.equals(cn);
+                } else if (st.equals("patient")) {
+                    return cn.equals(record);
+                } else if (cn.equals("governmentAgency")) {
+                    return true;
+                } else {
+                    return false;
+                }
+
+            case "write":
+                if (rec == null) {
+                    return false;
+                }
+                if (st.equals("doctor")) {
+                    return rec.division.equals(currentClient.getAttribute("OU")) || rec.doctor.equals(cn);
+                } else if (st.equals("nurse")) {
+                    return rec.division.equals(currentClient.getAttribute("OU")) || rec.nurse.equals(cn);
+                } else if (st.equals("patient")) {
+                    return cn.equals(record);
+                } else if (st.equals("governmentAgency")) {
+                    return false;
+                } else {
+                    return false;
+                }
+            case "delete":
+                if (rec == null) {
+                    return false;
+                }
+                return cn.equals("governmentAgency");
+            default:
+                return false;
+        }
     }
 
     private void newListener() { (new Thread(this)).start(); } // calls run()
