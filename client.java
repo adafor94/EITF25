@@ -40,12 +40,13 @@ public class client {
                 String certificatePath = read.readLine();
                 System.out.println("\n Please enter your password: \n");
                 char[] password = read.readLine().toCharArray();
+
                 KeyStore ks = KeyStore.getInstance("JKS");
                 KeyStore ts = KeyStore.getInstance("JKS");
                 KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
                 TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
                 SSLContext ctx = SSLContext.getInstance("TLS");
-                ks.load(new FileInputStream(certificatePath), password);  // keystore password (storepass)
+                ks.load(new FileInputStream("./certificates/clients/" + certificatePath), password);  // keystore password (storepass)
 				ts.load(new FileInputStream("./certificates/clients/clienttruststore"), password); // truststore password (storepass);
 				kmf.init(ks, password); // user password (keypass)
 				tmf.init(ts); // keystore can be used as truststore here
@@ -81,18 +82,22 @@ public class client {
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String msg;
+            char[] arr = new char[1000];
 			for (;;) {
+                in.read(arr);
+                System.out.print(arr);
+                arr = new char[1000];
                 System.out.print(">");
                 msg = read.readLine();
                 if (msg.equalsIgnoreCase("quit")) {
 				    break;
 				}
-                System.out.print("sending '" + msg + "' to server...");
+              //  System.out.print("sending '" + msg + "' to server...");
                 out.println(msg);
                 out.flush();
-                System.out.println("done");
+             //   System.out.println("done");
 
-                System.out.println("received '" + in.readLine() + "' from server\n");
+              //  System.out.println("received '" + in.readLine() + "' from server\n");
             }
             in.close();
 			out.close();
