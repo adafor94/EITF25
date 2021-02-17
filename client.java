@@ -39,7 +39,8 @@ public class client {
                 System.out.println("\n Please enter the path of your certificate:\n");
                 String certificatePath = read.readLine();
                 System.out.println("\n Please enter your password: \n");
-                char[] password = read.readLine().toCharArray();
+              //  char[] password = read.readLine().toCharArray();
+                char[] password = System.console().readPassword();
 
                 KeyStore ks = KeyStore.getInstance("JKS");
                 KeyStore ts = KeyStore.getInstance("JKS");
