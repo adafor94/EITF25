@@ -56,7 +56,7 @@ public class server implements Runnable {
             out.println("Options:\n 1. Create new record\n 2. Read record\n 3. Write to record\n 4. Delete record");
 
             while ((clientMsg = in.readLine()) != null) {
-                System.out.println(clientMsg);
+              //  System.out.println(clientMsg);
                 out.println("Please enter the name of the record:");
                 record = in.readLine();
                 int option; 
@@ -69,16 +69,23 @@ public class server implements Runnable {
                 if (option < 1 || option > 4) {
                     out.println("\nSomething went wrong \n\n" + "Options:\n 1. Create new record\n 2. Read record\n 3. Write to record\n 4. Delete record");
                 } else if (!accessControl(clientMsg, record)) {
-                    out.println("Denied!");
+                    out.println("Access denied or no such record");
                 } else {
                     if (clientMsg.equals("1")) {
-                        createRecord(record);
-                        out.println("TODO");
+                        out.println("Nurse: \n");
+                        String nurse = in.readLine();
+                        out.println("Comment: \n");
+                        String comment = in.readLine();
+                        createRecord(record, nurse, comment);
+                        out.println("Done");
+
                     } else if (clientMsg.equals("2")) {
                         out.println(recordDB.get(record).printable());
                     } else if (clientMsg.equals("3")) {
-                        writeRecord(record);
-                        out.println("TODO");
+                        out.println("Write line to add to record: \n");
+                        String line = in.readLine();
+                        out.println("Done");
+                        recordDB.get(record).appendComment(line);
                     } else if (clientMsg.equals("4")) {
                         recordDB.remove(record);
                         out.println("Done");
@@ -87,7 +94,7 @@ public class server implements Runnable {
                     }
                 }
 				out.flush();
-                System.out.println("done\n");
+            //    System.out.println("done\n");
 			}
 			in.close();
 			out.close();
@@ -102,16 +109,12 @@ public class server implements Runnable {
         }
     }
 
-    private void writeRecord(String record) {
-        System.out.println("TODO");
-    }
-
-    private void createRecord(String record) {
-        System.out.println("TODO");
+    private void createRecord(String record, String nurse, String comment) {
+        Record newRecord = new Record(record, currentClient.getAttribute("CN"), currentClient.getAttribute("OU"), nurse, comment);
+        recordDB.put(record, newRecord);
     }
 
     private Boolean accessControl(String option, String record) {
-      //  currentClient.print();
         String st = currentClient.getAttribute("ST");
         String cn = currentClient.getAttribute("CN");
         String ou = currentClient.getAttribute("OU");

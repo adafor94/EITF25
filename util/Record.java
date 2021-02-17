@@ -18,4 +18,8 @@ public class Record {
     public String printable() {
         return ("Patient: " + patient + "\n" + "Doctor: " + doctor + "\n" + "Nurse: " + nurse + "\n" + "Division: " + division + "\n" + "Comment: " + comment + "\n");
     }
+
+    public void appendComment(String s) {
+        comment = comment + "\n" + s;
+    }
 }
