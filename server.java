@@ -14,6 +14,7 @@ public class server implements Runnable {
     private HashMap<String, Record> recordDB = new HashMap<String, Record>();
     private Log log = new Log();
     private CurrentClient currentClient;
+    private String OPTIONS = "Options:\n 1. Create new record\n 2. Read record\n 3. Write to record\n 4. Delete record";
 
     public server(ServerSocket ss) throws IOException {
         serverSocket = ss;
@@ -53,7 +54,8 @@ public class server implements Runnable {
 
             String clientMsg = null;
             String record = null;
-            out.println("Options:\n 1. Create new record\n 2. Read record\n 3. Write to record\n 4. Delete record");
+            
+            out.println(OPTIONS);
 
             while ((clientMsg = in.readLine()) != null) {
               //  System.out.println(clientMsg);
@@ -67,9 +69,10 @@ public class server implements Runnable {
                 }
 
                 if (option < 1 || option > 4) {
-                    out.println("\nSomething went wrong \n\n" + "Options:\n 1. Create new record\n 2. Read record\n 3. Write to record\n 4. Delete record");
+                    out.println("\nSomething went wrong \n\n" + OPTIONS);
                 } else if (!accessControl(clientMsg, record)) {
                     out.println("Access denied or no such record");
+                    
                 } else {
                     if (clientMsg.equals("1")) {
                         out.println("Nurse: \n");
@@ -77,20 +80,22 @@ public class server implements Runnable {
                         out.println("Comment: \n");
                         String comment = in.readLine();
                         createRecord(record, nurse, comment);
-                        out.println("Done");
+                        out.println("Done \n" + OPTIONS);
 
                     } else if (clientMsg.equals("2")) {
                         out.println(recordDB.get(record).printable());
+
                     } else if (clientMsg.equals("3")) {
                         out.println("Write line to add to record: \n");
                         String line = in.readLine();
-                        out.println("Done");
                         recordDB.get(record).appendComment(line);
+                        out.println("Done \n" + OPTIONS);
                     } else if (clientMsg.equals("4")) {
+
                         recordDB.remove(record);
-                        out.println("Done");
+                        out.println("Done \n" + OPTIONS);
                     } else {
-                        out.println("\nSomething went wrong \n\n" + "Options:\n 1. Create new record\n 2. Read record\n 3. Write to record\n 4. Delete record");
+                        out.println("\nSomething went wrong \n\n" + OPTIONS);
                     }
                 }
 				out.flush();

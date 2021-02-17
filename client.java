@@ -97,7 +97,6 @@ public class client {
                 out.println(msg);
                 out.flush();
              //   System.out.println("done");
-
               //  System.out.println("received '" + in.readLine() + "' from server\n");
             }
             in.close();
