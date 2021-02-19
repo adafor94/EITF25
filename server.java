@@ -13,7 +13,7 @@ public class server implements Runnable {
     private static int numConnectedClients = 0;
     private HashMap<String, Record> recordDB = new HashMap<String, Record>();
     private Log log = new Log();
-    private CurrentClient currentClient;
+    private CurrentClient cc;
     private String OPTIONS = "Options:\n 1. Create new record\n 2. Read record\n 3. Write to record\n 4. Delete record";
 
     public server(ServerSocket ss) throws IOException {
@@ -36,7 +36,7 @@ public class server implements Runnable {
             String issuer = cert.getIssuerDN().getName();
             String serialNumber = cert.getSerialNumber().toString();
 
-            currentClient = new CurrentClient(subject);
+            cc = new CurrentClient(subject);
            // currentClient.print();
 
     	    numConnectedClients++;
@@ -67,12 +67,13 @@ public class server implements Runnable {
                 } catch (Exception e) {
                     option = -1;
                 }
-
-                if (option < 1 || option > 4) {
+                Boolean access = accessControl(clientMsg, record);
+                if (clientMsg.equals("10")){
+                    out.println(this.log.getText());
+                } else if (option < 1 || option > 4) {
                     out.println("\nSomething went wrong \n\n" + OPTIONS);
-                } else if (!accessControl(clientMsg, record)) {
+                } else if (!access) {
                     out.println("Access denied or no such record");
-                    
                 } else {
                     if (clientMsg.equals("1")) {
                         out.println("Nurse: \n");
@@ -98,6 +99,7 @@ public class server implements Runnable {
                         out.println("\nSomething went wrong \n\n" + OPTIONS);
                     }
                 }
+                this.log.newLogEntry(cc, clientMsg, record, access);
 				out.flush();
             //    System.out.println("done\n");
 			}
@@ -115,14 +117,14 @@ public class server implements Runnable {
     }
 
     private void createRecord(String record, String nurse, String comment) {
-        Record newRecord = new Record(record, currentClient.getAttribute("CN"), currentClient.getAttribute("OU"), nurse, comment);
+        Record newRecord = new Record(record, cc.getAttribute("CN"), cc.getAttribute("OU"), nurse, comment);
         recordDB.put(record, newRecord);
     }
 
     private Boolean accessControl(String option, String record) {
-        String st = currentClient.getAttribute("ST");
-        String cn = currentClient.getAttribute("CN");
-        String ou = currentClient.getAttribute("OU");
+        String st = cc.getAttribute("ST");
+        String cn = cc.getAttribute("CN");
+        String ou = cc.getAttribute("OU");
         Record rec = recordDB.get(record);
         switch(option) {
             case "1":
