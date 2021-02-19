@@ -12,12 +12,12 @@ A doctor can read/write all records associated with him and read all records ass
 A government agency can read/delete all records. 
 
 The starting point of the simulation concist of the clients:
-doc0, div0
-doc1, div1
-nurse0, div0
-nurse1, div1
-patientAlice
-patientBob
+doc0 (div0),
+doc1 (div1),
+nurse0 (div0),
+nurse1 (div1),
+patientAlice,
+patientBob,
 govAge
 
 and the records:
