@@ -14,8 +14,20 @@ public class CurrentClient {
         }
     }
 
-    public String getAttribute(String s) {
+    private String getAttribute(String s) {
         return this.attributes.getOrDefault(s, "NO VALUE");
+    }
+
+    public String getName() {
+        return getAttribute("CN");
+    }
+
+    public String getRole() {
+        return getAttribute("ST");
+    }
+
+    public String getDivision() {
+        return getAttribute("OU");
     }
 
     public void print() {

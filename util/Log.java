@@ -28,7 +28,7 @@ public class Log {
                 result = "Access Denied or no such record";
             }
             LocalDateTime time = LocalDateTime.now();
-            String s = "Time: " + dtf.format(time) + ", Client: " + cc.getAttribute("CN") + ", Action: " + action + ", Record: " + record + ", Result: " + result;
+            String s = "Time: " + dtf.format(time) + ", Client: " + cc.getName() + ", Action: " + action + ", Record: " + record + ", Result: " + result;
             System.out.println(s);
             addEventToLog(s);
         }

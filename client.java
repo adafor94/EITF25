@@ -5,14 +5,6 @@ import javax.security.cert.X509Certificate;
 import java.security.KeyStore;
 import java.security.cert.*;
 
-/*
- * This example shows how to set up a key manager to perform client
- * authentication.
- *
- * This program assumes that the client is not inside a firewall.
- * The application can be modified to connect to a server outside
- * the firewall by following SSLSocketClientWithTunneling.java.
- */
 public class client {
     public static void main(String[] args) throws Exception {
         String host = null;
@@ -39,7 +31,6 @@ public class client {
                 System.out.println("\n Please enter the path of your certificate:\n");
                 String certificatePath = read.readLine();
                 System.out.println("\n Please enter your password: \n");
-              //  char[] password = read.readLine().toCharArray();
                 char[] password = System.console().readPassword();
 
                 KeyStore ks = KeyStore.getInstance("JKS");
@@ -54,6 +45,7 @@ public class client {
 				ctx.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
                 factory = ctx.getSocketFactory();
             } catch (Exception e) {
+                System.out.println("Something went wrong!");
                 throw new IOException(e.getMessage());
             }
             SSLSocket socket = (SSLSocket)factory.createSocket(host, port);
@@ -79,7 +71,6 @@ public class client {
             System.out.println("socket after handshake:\n" + socket + "\n");
             System.out.println("secure connection established\n\n");
 
-            // BufferedReader read = new BufferedReader(new InputStreamReader(System.in));
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String msg;
@@ -93,11 +84,8 @@ public class client {
                 if (msg.equalsIgnoreCase("quit")) {
 				    break;
 				}
-              //  System.out.print("sending '" + msg + "' to server...");
                 out.println(msg);
                 out.flush();
-             //   System.out.println("done");
-              //  System.out.println("received '" + in.readLine() + "' from server\n");
             }
             in.close();
 			out.close();

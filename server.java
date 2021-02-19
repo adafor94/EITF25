@@ -13,7 +13,6 @@ public class server implements Runnable {
     private static int numConnectedClients = 0;
     private HashMap<String, Record> recordDB = new HashMap<String, Record>();
     private Log log = new Log();
-    private CurrentClient cc;
     private String OPTIONS = "Options:\n 1. Create new record\n 2. Read record\n 3. Write to record\n 4. Delete record";
 
     public server(ServerSocket ss) throws IOException {
@@ -36,8 +35,8 @@ public class server implements Runnable {
             String issuer = cert.getIssuerDN().getName();
             String serialNumber = cert.getSerialNumber().toString();
 
+            CurrentClient cc;
             cc = new CurrentClient(subject);
-           // currentClient.print();
 
     	    numConnectedClients++;
             System.out.println("client connected");
@@ -58,7 +57,6 @@ public class server implements Runnable {
             out.println(OPTIONS);
 
             while ((clientMsg = in.readLine()) != null) {
-              //  System.out.println(clientMsg);
                 out.println("Please enter the name of the record:");
                 record = in.readLine();
                 int option; 
@@ -67,7 +65,10 @@ public class server implements Runnable {
                 } catch (Exception e) {
                     option = -1;
                 }
-                Boolean access = accessControl(clientMsg, record);
+                Boolean access = accessControl(cc, clientMsg, record);
+                // if (clientMsg.equals("9")) {
+                //     out.println(cc.getName());
+                // }
                 if (clientMsg.equals("10")){
                     out.println(this.log.getText());
                 } else if (option < 1 || option > 4) {
@@ -76,23 +77,16 @@ public class server implements Runnable {
                     out.println("Access denied or no such record");
                 } else {
                     if (clientMsg.equals("1")) {
-                        out.println("Nurse: \n");
-                        String nurse = in.readLine();
-                        out.println("Comment: \n");
-                        String comment = in.readLine();
-                        createRecord(record, nurse, comment);
+                        createRecord(cc, record, out, in);
                         out.println("Done \n" + OPTIONS);
 
                     } else if (clientMsg.equals("2")) {
                         out.println(recordDB.get(record).printable());
 
                     } else if (clientMsg.equals("3")) {
-                        out.println("Write line to add to record: \n");
-                        String line = in.readLine();
-                        recordDB.get(record).appendComment(line);
+                        appendToRecord(record, out, in);
                         out.println("Done \n" + OPTIONS);
                     } else if (clientMsg.equals("4")) {
-
                         recordDB.remove(record);
                         out.println("Done \n" + OPTIONS);
                     } else {
@@ -101,7 +95,6 @@ public class server implements Runnable {
                 }
                 this.log.newLogEntry(cc, clientMsg, record, access);
 				out.flush();
-            //    System.out.println("done\n");
 			}
 			in.close();
 			out.close();
@@ -116,30 +109,40 @@ public class server implements Runnable {
         }
     }
 
-    private void createRecord(String record, String nurse, String comment) {
-        Record newRecord = new Record(record, cc.getAttribute("CN"), cc.getAttribute("OU"), nurse, comment);
+    private void createRecord(CurrentClient cc, String record, PrintWriter out, BufferedReader in) throws IOException {
+        out.println("Nurse: \n");
+        String nurse = in.readLine();
+        out.println("Comment: \n");
+        String comment = in.readLine();
+        Record newRecord = new Record(record, cc.getName(), cc.getDivision(), nurse, comment);
         recordDB.put(record, newRecord);
     }
 
-    private Boolean accessControl(String option, String record) {
-        String st = cc.getAttribute("ST");
-        String cn = cc.getAttribute("CN");
-        String ou = cc.getAttribute("OU");
+    private void appendToRecord(String record, PrintWriter out, BufferedReader in) throws IOException {
+        out.println("Write line to add to record: \n");
+        String line = in.readLine();
+        recordDB.get(record).appendComment(line);
+    }
+
+    private Boolean accessControl(CurrentClient cc, String option, String record) {
+        String role = cc.getRole();
+        String name = cc.getName();
+        String div = cc.getDivision();
         Record rec = recordDB.get(record);
         switch(option) {
             case "1":
-                return st.equals("doctor");
+                return role.equals("doctor");
             case "2":
                 if (rec == null) {
                     return false;
                 }
-                if (st.equals("doctor")) {
-                    return rec.division.equals(ou) || rec.doctor.equals(cn);
-                } else if (st.equals("nurse")) {
-                    return rec.division.equals(ou) || rec.nurse.equals(cn);
-                } else if (st.equals("patient")) {
-                    return cn.equals(record);
-                } else if (cn.equals("governmentAgency")) {
+                if (role.equals("doctor")) {
+                    return rec.division.equals(div) || rec.doctor.equals(name);
+                } else if (role.equals("nurse")) {
+                    return rec.division.equals(div) || rec.nurse.equals(name);
+                } else if (role.equals("patient")) {
+                    return name.equals(record);
+                } else if (role.equals("governmentAgency")) {
                     return true;
                 } else {
                     return false;
@@ -149,14 +152,10 @@ public class server implements Runnable {
                 if (rec == null) {
                     return false;
                 }
-                if (st.equals("doctor")) {
-                    return rec.division.equals(ou) || rec.doctor.equals(cn);
-                } else if (st.equals("nurse")) {
-                    return rec.division.equals(ou) || rec.nurse.equals(cn);
-                } else if (st.equals("patient")) {
-                    return cn.equals(record);
-                } else if (st.equals("governmentAgency")) {
-                    return false;
+                if (role.equals("doctor")) {
+                    return rec.division.equals(div) || rec.doctor.equals(name);
+                } else if (role.equals("nurse")) {
+                    return rec.division.equals(div) || rec.nurse.equals(name);
                 } else {
                     return false;
                 }
@@ -164,7 +163,7 @@ public class server implements Runnable {
                 if (rec == null) {
                     return false;
                 }
-                return cn.equals("governmentAgency");
+                return role.equals("governmentAgency");
             default:
                 return false;
         }
