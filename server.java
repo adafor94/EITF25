@@ -1,6 +1,8 @@
 import java.io.*;
 import java.net.*;
 import java.security.KeyStore;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 
 import javax.net.*;
@@ -13,7 +15,9 @@ public class server implements Runnable {
     private static int numConnectedClients = 0;
     private HashMap<String, Record> recordDB = new HashMap<String, Record>();
     private Log log = new Log();
-    private String OPTIONS = "Options:\n 1. Create new record\n 2. Read record\n 3. Write to record\n 4. Delete record";
+    private HashMap<String, String> lastLogIn = new HashMap<String,String>();
+    private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+    private final String OPTIONS = "Options:\n 1. Create new record\n 2. Read record\n 3. Write to record\n 4. Delete record";
 
     public server(ServerSocket ss) throws IOException {
         serverSocket = ss;
@@ -28,7 +32,13 @@ public class server implements Runnable {
     public void run() {
         try {
             SSLSocket socket=(SSLSocket)serverSocket.accept();
+            
             newListener();
+            // String[] enabledCipherSuites = socket.getEnabledCipherSuites();
+            // for (String suite : enabledCipherSuites) {
+            //     System.out.println(s);
+            // }
+
             SSLSession session = socket.getSession();
             X509Certificate cert = (X509Certificate)session.getPeerCertificateChain()[0];
             String subject = cert.getSubjectDN().getName();
@@ -38,6 +48,7 @@ public class server implements Runnable {
             CurrentClient cc;
             cc = new CurrentClient(subject);
 
+
     	    numConnectedClients++;
             System.out.println("client connected");
             System.out.println("client name (cert subject DN field): " + subject);
@@ -45,6 +56,11 @@ public class server implements Runnable {
             System.out.println("Serial number of certificate:\n" + serialNumber + "\n");
 
             System.out.println(numConnectedClients + " concurrent connection(s)\n");
+
+            LocalDateTime time = LocalDateTime.now();
+            String formattedTime = dtf.format(time);
+            String userLastLogIn = "Last log in: " + lastLogIn.getOrDefault(serialNumber, "First log in") + "\n\n";
+            lastLogIn.put(serialNumber, formattedTime);
 
             PrintWriter out = null;
             BufferedReader in = null;
@@ -54,7 +70,7 @@ public class server implements Runnable {
             String clientMsg = null;
             String record = null;
             
-            out.println(OPTIONS);
+            out.println(userLastLogIn + OPTIONS);
 
             while ((clientMsg = in.readLine()) != null) {
                 out.println("Please enter the name of the record:");
