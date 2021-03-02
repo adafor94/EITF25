@@ -24,7 +24,7 @@ public class server implements Runnable {
         newListener();
 
         Record Alice = new Record("alice", "doc0", "div0", "nurse0", "Broken foot");
-        Record Bob = new Record("bob", "doc1", "div1", "nurse0", "Broken heart");
+        Record Bob = new Record("bob", "doc1", "div1", "nurse1", "Broken heart");
         recordDB.put("alice", Alice);
         recordDB.put("bob", Bob);
     }
@@ -32,7 +32,7 @@ public class server implements Runnable {
     public void run() {
         try {
             SSLSocket socket=(SSLSocket)serverSocket.accept();
-            
+        
             newListener();
             // String[] enabledCipherSuites = socket.getEnabledCipherSuites();
             // for (String suite : enabledCipherSuites) {
@@ -158,7 +158,7 @@ public class server implements Runnable {
                     return rec.division.equals(div) || rec.nurse.equals(name);
                 } else if (role.equals("patient")) {
                     return name.equals(record);
-                } else if (role.equals("governmentAgency")) {
+                } else if (role.equals("govAge")) {
                     return true;
                 } else {
                     return false;
@@ -179,7 +179,7 @@ public class server implements Runnable {
                 if (rec == null) {
                     return false;
                 }
-                return role.equals("governmentAgency");
+                return role.equals("govAge");
             default:
                 return false;
         }
