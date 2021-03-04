@@ -18,6 +18,7 @@ public class server implements Runnable {
     private HashMap<String, String> lastLogIn = new HashMap<String,String>();
     private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
     private final String OPTIONS = "Options:\n 1. Create new record\n 2. Read record\n 3. Write to record\n 4. Delete record";
+    private final String[] CIPHER_SUITES = new String[] {"TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384", "TLS_RSA_WITH_AES_256_GCM_SHA384"};
 
     public server(ServerSocket ss) throws IOException {
         serverSocket = ss;
@@ -32,7 +33,7 @@ public class server implements Runnable {
     public void run() {
         try {
             SSLSocket socket=(SSLSocket)serverSocket.accept();
-        
+            socket.setEnabledCipherSuites(CIPHER_SUITES);
             newListener();
             // String[] enabledCipherSuites = socket.getEnabledCipherSuites();
             // for (String suite : enabledCipherSuites) {
@@ -45,6 +46,7 @@ public class server implements Runnable {
             String issuer = cert.getIssuerDN().getName();
             String serialNumber = cert.getSerialNumber().toString();
 
+            System.out.println(session.getCipherSuite());
             CurrentClient cc;
             cc = new CurrentClient(subject);
 
