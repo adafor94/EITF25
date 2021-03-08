@@ -16,7 +16,7 @@ public class server implements Runnable {
     private HashMap<String, Record> recordDB = new HashMap<String, Record>();
     private Log log = new Log();
     private HashMap<String, String> lastLogIn = new HashMap<String,String>();
-    private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+    private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
     private final String OPTIONS = "Options:\n 1. Create new record\n 2. Read record\n 3. Write to record\n 4. Delete record";
     private final String[] CIPHER_SUITES = new String[] {"TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384", "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384", "TLS_RSA_WITH_AES_256_GCM_SHA384"};
 
@@ -35,21 +35,17 @@ public class server implements Runnable {
             SSLSocket socket=(SSLSocket)serverSocket.accept();
             socket.setEnabledCipherSuites(CIPHER_SUITES);
             newListener();
-            // String[] enabledCipherSuites = socket.getEnabledCipherSuites();
-            // for (String suite : enabledCipherSuites) {
-            //     System.out.println(s);
-            // }
-
+           
             SSLSession session = socket.getSession();
             X509Certificate cert = (X509Certificate)session.getPeerCertificateChain()[0];
             String subject = cert.getSubjectDN().getName();
             String issuer = cert.getIssuerDN().getName();
             String serialNumber = cert.getSerialNumber().toString();
 
-            System.out.println(session.getCipherSuite());
-            CurrentClient cc;
-            cc = new CurrentClient(subject);
+            CurrentClient cc = new CurrentClient(subject);
 
+            System.out.println("Protocol being used:\n" + session.getProtocol()+ "\n\n");
+            System.out.println("Cipher suite being used:\n" + session.getCipherSuite() + "\n\n");
 
     	    numConnectedClients++;
             System.out.println("client connected");
@@ -83,10 +79,8 @@ public class server implements Runnable {
                 } catch (Exception e) {
                     option = -1;
                 }
-                Boolean access = accessControl(cc, clientMsg, record);
-                // if (clientMsg.equals("9")) {
-                //     out.println(cc.getName());
-                // }
+                Boolean access = accessControl(cc, option, record);
+
                 if (clientMsg.equals("10")){
                     out.println(this.log.getText());
                 } else if (option < 1 || option > 4) {
@@ -142,15 +136,15 @@ public class server implements Runnable {
         recordDB.get(record).appendComment(line);
     }
 
-    private Boolean accessControl(CurrentClient cc, String option, String record) {
+    private Boolean accessControl(CurrentClient cc, int option, String record) {
         String role = cc.getRole();
         String name = cc.getName();
         String div = cc.getDivision();
         Record rec = recordDB.get(record);
         switch(option) {
-            case "1":
+            case 1:
                 return role.equals("doctor");
-            case "2":
+            case 2:
                 if (rec == null) {
                     return false;
                 }
@@ -166,7 +160,7 @@ public class server implements Runnable {
                     return false;
                 }
 
-            case "3":
+            case 3:
                 if (rec == null) {
                     return false;
                 }
@@ -177,7 +171,7 @@ public class server implements Runnable {
                 } else {
                     return false;
                 }
-            case "4":
+            case 4:
                 if (rec == null) {
                     return false;
                 }
